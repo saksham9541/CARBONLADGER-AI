@@ -57,6 +57,11 @@ docker-compose.override.yml
 
 # ── Uploads & generated files ──────────────────────────────
 backend/uploads/
+test_storage_evidence/
+backend/test_storage_evidence/
+*.db
+*.sqlite
+*.sqlite3
 *.pdf
 !datasets/synthetic/*.pdf
 *.log
