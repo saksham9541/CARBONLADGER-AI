@@ -22,7 +22,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routers import health
+from app.api.routers import health, organizations, reporting_periods
 from app.core.config import get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging, get_logger
@@ -65,6 +65,8 @@ register_exception_handlers(app)
 
 # ── Routers ───────────────────────────────────────────────────
 app.include_router(health.router, prefix="/api")
+app.include_router(organizations.router, prefix="/api")
+app.include_router(reporting_periods.router, prefix="/api")
 
 # Phase 2+ routers will be registered here:
 # app.include_router(evidence.router, prefix="/api/evidence", tags=["Evidence"])

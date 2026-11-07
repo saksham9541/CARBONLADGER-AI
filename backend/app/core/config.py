@@ -47,10 +47,14 @@ class Settings(BaseSettings):
     local_storage_path: str = "./uploads"
     max_file_size_mb: int = 50
 
-    # Supabase (Phase 2+)
+    # Supabase Auth & Storage
     supabase_url: str = ""
     supabase_service_key: str = ""
     supabase_storage_bucket: str = "carbonledger-evidence"
+    supabase_jwt_secret: str = ""
+    supabase_jwt_audience: str = "authenticated"
+    supabase_jwt_issuer: str = ""
+    supabase_jwks_url: str = ""
 
     # Gemini (Phase 2+)
     gemini_api_key: str = ""

@@ -138,46 +138,21 @@ npm run dev
 
 ---
 
-## API endpoints (Phase 1)
+## API endpoints (Phase 1 & 2)
 
-| Method | Endpoint | Auth | Description |
-|---|---|---|---|
-| GET | `/api/health` | None | System health check |
-| GET | `/docs` | None (dev only) | Swagger UI |
-
-Phase 2+ endpoints are documented in [ARCHITECTURE.md](./ARCHITECTURE.md).
-
----
-
-## Environment variables
-
-### Backend (`backend/.env`)
-
-| Variable | Required | Description |
-|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string |
-| `SECRET_KEY` | Yes | JWT signing key (64+ random chars in production) |
-| `CORS_ORIGINS` | Yes | Comma-separated allowed origins |
-| `GEMINI_API_KEY` | Phase 2 | Google Gemini API key |
-| `SUPABASE_URL` | Phase 2 | Supabase project URL |
-| `SUPABASE_SERVICE_KEY` | Phase 2 | Supabase service role key |
-
-### Frontend (`frontend/.env.local`)
-
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_API_BASE_URL` | Yes | Backend API base URL |
-| `VITE_APP_NAME` | No | Application display name |
-
----
-
-## CI / GitHub Actions
-
-Every push runs:
-1. **Backend**: flake8 lint → mypy type check → pytest
-2. **Frontend**: TypeScript type check → ESLint → Vite build
-
-See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+| Method | Endpoint | Auth | RBAC Role | Description |
+|---|---|---|---|---|
+| GET | `/api/health` | None | Public | System and database health check |
+| GET | `/docs` | None | Public (dev) | OpenAPI / Swagger interactive documentation |
+| POST | `/api/organizations` | Bearer JWT | Authenticated | Create organization (sets creator as Admin) |
+| GET | `/api/organizations` | Bearer JWT | Member | List caller's active organizations |
+| GET | `/api/organizations/{org_id}` | Bearer JWT | Member | Get organization profile |
+| POST | `/api/organizations/{org_id}/members` | Bearer JWT | Admin | Invite/add member to organization |
+| GET | `/api/organizations/{org_id}/members` | Bearer JWT | Member | List organization members |
+| POST | `/api/organizations/{org_id}/reporting-periods` | Bearer JWT | Admin, Analyst | Create reporting period |
+| GET | `/api/organizations/{org_id}/reporting-periods` | Bearer JWT | Member | List organization reporting periods |
+| GET | `/api/organizations/{org_id}/reporting-periods/{period_id}` | Bearer JWT | Member | Get reporting period details |
+| PATCH | `/api/organizations/{org_id}/reporting-periods/{period_id}` | Bearer JWT | Admin, Analyst | Update reporting period status/dates |
 
 ---
 
@@ -186,11 +161,11 @@ See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 | Phase | Status | Scope |
 |---|---|---|
 | 1 — Architecture | ✅ **Complete** | Monorepo, skeleton, health endpoint, DB schema |
-| 2 — Document Processing | 🔜 Planned | Upload, Gemini extraction, evidence ledger |
-| 3 — Carbon Engine | 🔜 Planned | Unit normalization, factor registry, calculator |
-| 4 — Validation & Approval | 🔜 Planned | Gap detection, corrections, audit trail |
-| 5 — Reports & AI Features | 🔜 Planned | PDF/Excel, voice summary, analytics |
-| 6 — Testing & Deployment | 🔜 Planned | Synthetic dataset, CI/CD, Vercel + Render |
+| 2 — Database & RBAC | ✅ **Complete** | SQLAlchemy 2, Alembic migrations, Supabase Auth, RBAC, tenant isolation |
+| 3 — Multimodal Ingestion | 🔜 Planned | Evidence intake, Supabase storage, Gemini extraction, ledger |
+| 4 — Carbon Engine | 🔜 Planned | Unit normalization, factor registry, calculator |
+| 5 — Validation & Approval | 🔜 Planned | Gap detection, corrections, audit trail |
+| 6 — Reports & AI Features | 🔜 Planned | PDF/Excel, voice summary, analytics |
 
 ---
 

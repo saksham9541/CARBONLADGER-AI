@@ -46,7 +46,6 @@ def _override_get_db():
         db.close()
 
 
-app.dependency_overrides[get_db] = _override_get_db
 client = TestClient(app)
 
 
@@ -54,11 +53,16 @@ client = TestClient(app)
 def _setup_db():
     """Create tables before tests; drop + remove file after."""
     Base.metadata.create_all(bind=_test_engine)
+    app.dependency_overrides[get_db] = _override_get_db
     yield
+    app.dependency_overrides.clear()
     Base.metadata.drop_all(bind=_test_engine)
     _test_engine.dispose()
     if os.path.exists("./test_carbonledger.db"):
-        os.remove("./test_carbonledger.db")
+        try:
+            os.remove("./test_carbonledger.db")
+        except Exception:
+            pass
 
 
 # ── Tests ─────────────────────────────────────────────────────
