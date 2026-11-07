@@ -7,13 +7,37 @@ Pydantic v2 schemas for evidence files, extraction jobs, and upload responses.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.enums import EvidenceFileType, ExtractionJobStatus
+
+
+class ActivityRecordResponse(BaseModel):
+    id: UUID
+    org_id: UUID
+    period_id: UUID
+    file_id: Optional[UUID] = None
+    facility_id: Optional[UUID] = None
+    job_id: Optional[UUID] = None
+    evidence_reference: Optional[str] = None
+    evidence_type: str
+    raw_value: Optional[Decimal] = None
+    raw_unit: Optional[str] = None
+    raw_date_start: Optional[date] = None
+    raw_date_end: Optional[date] = None
+    confidence: Optional[Decimal] = None
+    normalised_value: Optional[Decimal] = None
+    normalised_unit: Optional[str] = None
+    status: str
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True, protected_namespaces=())
 
 
 class ExtractionJobResponse(BaseModel):

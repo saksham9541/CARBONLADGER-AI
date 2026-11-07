@@ -60,6 +60,14 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-1.5-pro"
 
+    # Nexus AI Provider (Phase 4)
+    nexus_api_key: str = ""
+    nexus_base_url: str = "https://nexusapi.navigatelabs.ai/v1"
+    nexus_extraction_model: str = "nova-micro"
+    nexus_audio_model: str = "whisper-1"
+    nexus_timeout_seconds: float = 30.0
+    nexus_max_retries: int = 3
+
     @property
     def cors_origins_list(self) -> List[str]:
         """Return CORS origins as a list."""

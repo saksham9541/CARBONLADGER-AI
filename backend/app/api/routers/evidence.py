@@ -28,15 +28,18 @@ from app.core.auth import require_analyst_or_admin, require_any_member
 from app.core.database import get_db
 from app.core.logging import get_logger
 from app.models.enums import UserRole
-from app.models.evidence import EvidenceFile, ExtractionJob
+from app.models.evidence import ActivityRecord, EvidenceFile, ExtractionJob
 from app.models.organization import Facility, OrganizationMembership
 from app.models.reporting_period import ReportingPeriod
 from app.schemas.evidence import (
+    ActivityRecordResponse,
     EvidenceDetailResponse,
     EvidenceFileListResponse,
     EvidenceFileResponse,
     ExtractionJobResponse,
 )
+from app.schemas.extraction import ExtractionResultResponse
+from app.services.extraction_service import run_nexus_extraction
 from app.services.file_validator import (
     FileValidationError,
     UnsupportedMediaTypeError,
@@ -365,3 +368,41 @@ def delete_evidence_file(
     file_rec.is_deleted = True
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/{file_id}/extract",
+    response_model=ExtractionResultResponse,
+    summary="Trigger Nexus AI multimodal extraction",
+    description="Runs structured extraction using Nexus AI and records ActivityRecord entries. Requires Analyst or Admin role.",
+)
+def extract_evidence_file(
+    org_id: UUID,
+    file_id: UUID,
+    _membership: OrganizationMembership = Depends(require_analyst_or_admin),
+    db: Session = Depends(get_db),
+    storage: StorageBackend = Depends(get_storage_service),
+) -> ExtractionResultResponse:
+    file_rec = _get_evidence_or_404(db, org_id, file_id)
+    return run_nexus_extraction(db=db, evidence_file=file_rec, storage=storage)
+
+
+@router.get(
+    "/{file_id}/activities",
+    response_model=List[ActivityRecordResponse],
+    summary="List extracted activity records for evidence file",
+    description="Returns granular activity records linked to this evidence document with review status and references.",
+)
+def list_file_activities(
+    org_id: UUID,
+    file_id: UUID,
+    _membership: OrganizationMembership = Depends(require_any_member),
+    db: Session = Depends(get_db),
+) -> List[ActivityRecordResponse]:
+    _get_evidence_or_404(db, org_id, file_id)
+    records = db.execute(
+        select(ActivityRecord)
+        .where(ActivityRecord.file_id == file_id, ActivityRecord.org_id == org_id)
+        .order_by(desc(ActivityRecord.created_at))
+    ).scalars().all()
+    return [ActivityRecordResponse.model_validate(r) for r in records]
