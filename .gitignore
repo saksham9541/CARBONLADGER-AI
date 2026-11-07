@@ -1,0 +1,66 @@
+# =============================================================
+# CarbonLedger AI — Root .gitignore
+# =============================================================
+
+# ── Environment files ──────────────────────────────────────
+.env
+.env.local
+.env.production
+backend/.env
+frontend/.env.local
+*.pem
+*.key
+
+# ── Node / Frontend ────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# ── Python / Backend ───────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+backend/.venv/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+pip-wheel-metadata/
+*.whl
+
+# ── Testing ────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+*.xml
+
+# ── IDE ────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Docker ─────────────────────────────────────────────────
+# (docker-compose.yml is committed; local overrides are not)
+docker-compose.override.yml
+
+# ── Uploads & generated files ──────────────────────────────
+backend/uploads/
+*.pdf
+!datasets/synthetic/*.pdf
+*.log
+logs/
+
+# ── Alembic ────────────────────────────────────────────────
+# (versions/ folder is committed; env.py has secrets excluded via .env)

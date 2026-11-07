@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  # ── PostgreSQL ────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: carbonledger_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: carbonledger
+      POSTGRES_USER: carbonledger
+      POSTGRES_PASSWORD: carbonledger
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carbonledger -d carbonledger"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── pgAdmin (optional dev UI) ─────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: carbonledger_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@carbonledger.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - dev-tools
+
+  # ── Redis (future: task queues, caching) ──────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: carbonledger_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - dev-tools
+
+volumes:
+  postgres_data:
+    name: carbonledger_postgres_data
